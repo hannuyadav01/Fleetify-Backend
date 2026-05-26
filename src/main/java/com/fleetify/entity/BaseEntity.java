@@ -8,8 +8,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@MappedSuperclass //all entities that extend BaseEntity inherit these fields without creating a separate table
-@EntityListeners(AuditingEntityListener.class)
+@MappedSuperclass //all entities that extend BaseEntity inherit these fields without creating a separate table.
+@EntityListeners(AuditingEntityListener.class)//eg it automatically add the fiels by itself eg createdTime and UpdatedTime.
 public abstract class BaseEntity {
 
     @Id
