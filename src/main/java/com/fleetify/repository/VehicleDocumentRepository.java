@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface VehicleDocumentRepository extends JpaRepository<VehicleDocument, UUID> {
     List<VehicleDocument> findAllByVehicleIdAndIsCurrentTrue(UUID vehicleId);
     List<VehicleDocument> findAllByVehicleCompanyId(UUID companyId);
-    List<VehicleDocument> findAllByDocumentType(DocumentType documentType);
+    List<VehicleDocument> findAllByDocType(DocumentType docType);
 
     // Find docs expiring on or before a date — used by alert scheduler
     @Query("SELECT vd FROM VehicleDocument vd WHERE vd.expiryDate <= :date AND vd.isCurrent = true")
