@@ -2,6 +2,7 @@ package com.fleetify.repository;
 
 import com.fleetify.entity.Alert;
 import com.fleetify.enums.AlertSeverity;
+import com.fleetify.enums.AlertType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +17,7 @@ public interface AlertRepository extends JpaRepository<Alert, UUID> {
     List<Alert> findAllByCompanyIdAndSeverity(UUID companyId, AlertSeverity severity);
     List<Alert> findAllByVehicleId(UUID vehicleId);
     List<Alert> findAllByDriverId(UUID driverId);
+    boolean existsByDocumentIdAndIsResolvedFalse(UUID documentId);
+    boolean existsByDriverIdAndAlertTypeAndIsResolvedFalse(UUID driverId, AlertType alertType);
+    boolean existsByVehicleIdAndAlertTypeAndIsResolvedFalse(UUID vehicleId, AlertType alertType);
 }

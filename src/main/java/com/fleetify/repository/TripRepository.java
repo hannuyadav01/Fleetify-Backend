@@ -18,4 +18,5 @@ public interface TripRepository extends JpaRepository<Trip, UUID> {
     List<Trip> findAllByVehicleId(UUID vehicleId);
     Optional<Trip> findByIdAndCompanyId(UUID id, UUID companyId);
     List<Trip> findAllByCompanyIdAndScheduledStartBetween(UUID companyId, LocalDateTime from, LocalDateTime to);
+    boolean existsByTrackingCode(String trackingCode);
 }
