@@ -5,11 +5,13 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.Check;
 
 // Operating costs incurred (toll, fuel, repair, etc.).
 // Enforces that at least one of trip or vehicle must be present (via database or validation).
 @Entity
 @Table(name = "expenses")
+@Check(constraints = "trip_id IS NOT NULL OR vehicle_id IS NOT NULL")
 public class Expense extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.fleetify.enums.PaymentMode;
+
 // Tracks customer payments made against invoices.
 @Entity
 @Table(name = "payments")
@@ -20,11 +22,14 @@ public class Payment extends BaseEntity {
     @Column(name = "amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
+@Column(name = "payment_mode", nullable = false, length = 20)
+private PaymentMode paymentMode;
+
     @Column(name = "payment_date", nullable = false)
     private LocalDate paymentDate;
 
-    @Column(name = "payment_mode", nullable = false, length = 20)
-    private String paymentMode;
+    
 
     @Column(name = "reference_number", length = 100)
     private String referenceNumber;
@@ -50,8 +55,8 @@ public class Payment extends BaseEntity {
     public LocalDate getPaymentDate() { return paymentDate; }
     public void setPaymentDate(LocalDate paymentDate) { this.paymentDate = paymentDate; }
 
-    public String getPaymentMode() { return paymentMode; }
-    public void setPaymentMode(String paymentMode) { this.paymentMode = paymentMode; }
+    public PaymentMode getPaymentMode() { return paymentMode; }
+    public void setPaymentMode(PaymentMode paymentMode) { this.paymentMode = paymentMode; }
 
     public String getReferenceNumber() { return referenceNumber; }
     public void setReferenceNumber(String referenceNumber) { this.referenceNumber = referenceNumber; }

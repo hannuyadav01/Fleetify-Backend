@@ -37,8 +37,8 @@ public class Company extends BaseEntity {
 
     // ACTIVE, SUSPENDED, TRIAL, INACTIVE
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private CompanyStatus status;
+@Column(name = "status", nullable = false)
+private CompanyStatus status = CompanyStatus.TRIAL;
 
     // Soft delete flag — deactivated companies are excluded from all queries
     @Column(name = "is_active", nullable = false)
