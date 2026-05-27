@@ -42,6 +42,21 @@ public class Driver extends BaseEntity {
     @Column(name = "monthly_salary", nullable = false, precision = 10, scale = 2)
     private BigDecimal monthlySalary;
 
+    @Column(name = "license_number", nullable = false, unique = true, length = 50)
+private String licenseNumber;
+
+@Column(name = "license_expiry", nullable = false)
+private LocalDate licenseExpiry;
+
+@Column(name = "license_type", length = 20)
+private String licenseType; // HMV, LMV, HGV
+
+@Column(name = "aadhaar_number", length = 20)
+private String aadhaarNumber; // store encrypted
+
+@Column(name = "pan_number", length = 15)
+private String panNumber; // store encrypted
+
     // AVAILABLE, ON_TRIP, ON_LEAVE, INACTIVE
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -91,4 +106,19 @@ public class Driver extends BaseEntity {
 
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
+
+    public String getLicenseNumber() { return licenseNumber; }
+public void setLicenseNumber(String licenseNumber) { this.licenseNumber = licenseNumber; }
+
+public LocalDate getLicenseExpiry() { return licenseExpiry; }
+public void setLicenseExpiry(LocalDate licenseExpiry) { this.licenseExpiry = licenseExpiry; }
+
+public String getLicenseType() { return licenseType; }
+public void setLicenseType(String licenseType) { this.licenseType = licenseType; }
+
+public String getAadhaarNumber() { return aadhaarNumber; }
+public void setAadhaarNumber(String aadhaarNumber) { this.aadhaarNumber = aadhaarNumber; }
+
+public String getPanNumber() { return panNumber; }
+public void setPanNumber(String panNumber) { this.panNumber = panNumber; }
 }
