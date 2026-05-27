@@ -6,6 +6,9 @@ import com.fleetify.entity.User;
 import com.fleetify.enums.Role;
 import com.fleetify.exception.ValidationException;
 import com.fleetify.service.FinanceService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/finance")
+@Tag(name = "Finance", description = "Financial records: Expenses, Fuel Logs, GST Invoices, Customer Payments and Salary Records.")
+@SecurityRequirement(name = "bearerAuth")
 public class FinanceController {
 
     private final FinanceService financeService;
@@ -43,6 +48,7 @@ public class FinanceController {
 
     @GetMapping("/expenses")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'SUPER_ADMIN')")
+    @Operation(summary = "List expenses", description = "Returns all operating expenses for the company. Accessible by ADMIN and ACCOUNTANT.")
     public ResponseEntity<ApiResponse<List<ExpenseResponse>>> getAllExpenses(
             @AuthenticationPrincipal User currentUser,
             @RequestParam(required = false) UUID companyId) {
@@ -53,6 +59,7 @@ public class FinanceController {
 
     @GetMapping("/expenses/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'SUPER_ADMIN')")
+    @Operation(summary = "Get expense by ID", description = "Fetch a single expense record.")
     public ResponseEntity<ApiResponse<ExpenseResponse>> getExpenseById(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {
@@ -63,6 +70,7 @@ public class FinanceController {
 
     @PostMapping("/expenses")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'FLEET_MANAGER', 'DRIVER', 'SUPER_ADMIN')")
+    @Operation(summary = "Create expense", description = "Log a new operating expense (toll, fuel, loading, etc.). Drivers can submit their own expense slips.")
     public ResponseEntity<ApiResponse<ExpenseResponse>> createExpense(
             @Valid @RequestBody ExpenseRequest request,
             @AuthenticationPrincipal User currentUser) {
@@ -74,6 +82,7 @@ public class FinanceController {
 
     @PutMapping("/expenses/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'FLEET_MANAGER', 'SUPER_ADMIN')")
+    @Operation(summary = "Update expense", description = "Update an existing expense record. ACCOUNTANT or ADMIN only.")
     public ResponseEntity<ApiResponse<ExpenseResponse>> updateExpense(
             @PathVariable UUID id,
             @Valid @RequestBody ExpenseRequest request,
@@ -85,6 +94,7 @@ public class FinanceController {
 
     @PostMapping("/expenses/{id}/verify")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'SUPER_ADMIN')")
+    @Operation(summary = "Verify expense", description = "Mark a driver-submitted expense as verified by an ACCOUNTANT or ADMIN.")
     public ResponseEntity<ApiResponse<ExpenseResponse>> verifyExpense(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {
@@ -95,6 +105,7 @@ public class FinanceController {
 
     @DeleteMapping("/expenses/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Delete expense", description = "Soft delete an expense record. ADMIN only.")
     public ResponseEntity<ApiResponse<Void>> deleteExpense(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {
@@ -109,6 +120,7 @@ public class FinanceController {
 
     @GetMapping("/fuel-logs")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'FLEET_MANAGER', 'SUPER_ADMIN')")
+    @Operation(summary = "List fuel logs", description = "Returns all fuel fill records. Used for mileage computation and fuel cost tracking.")
     public ResponseEntity<ApiResponse<List<FuelLogResponse>>> getAllFuelLogs(
             @AuthenticationPrincipal User currentUser,
             @RequestParam(required = false) UUID companyId) {
@@ -119,6 +131,7 @@ public class FinanceController {
 
     @GetMapping("/fuel-logs/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'FLEET_MANAGER', 'SUPER_ADMIN')")
+    @Operation(summary = "Get fuel log by ID", description = "Fetch a single fuel log entry.")
     public ResponseEntity<ApiResponse<FuelLogResponse>> getFuelLogById(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {
@@ -129,6 +142,7 @@ public class FinanceController {
 
     @PostMapping("/fuel-logs")
     @PreAuthorize("hasAnyRole('ADMIN', 'FLEET_MANAGER', 'DRIVER', 'SUPER_ADMIN')")
+    @Operation(summary = "Create fuel log", description = "Log a fuel fill-up with odometer readings. Drivers can submit their own slips.")
     public ResponseEntity<ApiResponse<FuelLogResponse>> createFuelLog(
             @Valid @RequestBody FuelLogRequest request,
             @AuthenticationPrincipal User currentUser) {
@@ -140,6 +154,7 @@ public class FinanceController {
 
     @PutMapping("/fuel-logs/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'FLEET_MANAGER', 'SUPER_ADMIN')")
+    @Operation(summary = "Update fuel log", description = "Update a fuel log entry. FLEET_MANAGER or ADMIN only.")
     public ResponseEntity<ApiResponse<FuelLogResponse>> updateFuelLog(
             @PathVariable UUID id,
             @Valid @RequestBody FuelLogRequest request,
@@ -151,6 +166,7 @@ public class FinanceController {
 
     @DeleteMapping("/fuel-logs/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Delete fuel log", description = "Soft delete a fuel log. ADMIN only.")
     public ResponseEntity<ApiResponse<Void>> deleteFuelLog(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {
@@ -165,6 +181,7 @@ public class FinanceController {
 
     @GetMapping("/invoices")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'SUPER_ADMIN')")
+    @Operation(summary = "List invoices", description = "Returns all GST invoices raised against trips. ACCOUNTANT or ADMIN only.")
     public ResponseEntity<ApiResponse<List<InvoiceResponse>>> getAllInvoices(
             @AuthenticationPrincipal User currentUser,
             @RequestParam(required = false) UUID companyId) {
@@ -175,6 +192,7 @@ public class FinanceController {
 
     @GetMapping("/invoices/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'SUPER_ADMIN')")
+    @Operation(summary = "Get invoice by ID", description = "Fetch a single invoice.")
     public ResponseEntity<ApiResponse<InvoiceResponse>> getInvoiceById(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {
@@ -185,6 +203,7 @@ public class FinanceController {
 
     @PostMapping("/invoices")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'SUPER_ADMIN')")
+    @Operation(summary = "Create invoice", description = "Generate a GST invoice for a completed trip. Requires ACCOUNTANT or ADMIN.")
     public ResponseEntity<ApiResponse<InvoiceResponse>> createInvoice(
             @Valid @RequestBody InvoiceRequest request,
             @AuthenticationPrincipal User currentUser) {
@@ -196,6 +215,7 @@ public class FinanceController {
 
     @PutMapping("/invoices/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'SUPER_ADMIN')")
+    @Operation(summary = "Update invoice", description = "Update invoice details such as tax rate or amount.")
     public ResponseEntity<ApiResponse<InvoiceResponse>> updateInvoice(
             @PathVariable UUID id,
             @Valid @RequestBody InvoiceRequest request,
@@ -207,6 +227,7 @@ public class FinanceController {
 
     @DeleteMapping("/invoices/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Delete invoice", description = "Soft delete an invoice. ADMIN only.")
     public ResponseEntity<ApiResponse<Void>> deleteInvoice(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {
@@ -221,6 +242,7 @@ public class FinanceController {
 
     @GetMapping("/payments")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'SUPER_ADMIN')")
+    @Operation(summary = "List payments", description = "Returns all incoming customer payments against invoices.")
     public ResponseEntity<ApiResponse<List<PaymentResponse>>> getAllPayments(
             @AuthenticationPrincipal User currentUser,
             @RequestParam(required = false) UUID companyId) {
@@ -231,6 +253,7 @@ public class FinanceController {
 
     @GetMapping("/payments/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'SUPER_ADMIN')")
+    @Operation(summary = "Get payment by ID", description = "Fetch a single payment record.")
     public ResponseEntity<ApiResponse<PaymentResponse>> getPaymentById(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {
@@ -241,6 +264,7 @@ public class FinanceController {
 
     @PostMapping("/payments")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'SUPER_ADMIN')")
+    @Operation(summary = "Record payment", description = "Record an incoming customer payment (advance, partial, or full settlement) against an invoice.")
     public ResponseEntity<ApiResponse<PaymentResponse>> createPayment(
             @Valid @RequestBody PaymentRequest request,
             @AuthenticationPrincipal User currentUser) {
@@ -252,6 +276,7 @@ public class FinanceController {
 
     @PutMapping("/payments/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ACCOUNTANT', 'SUPER_ADMIN')")
+    @Operation(summary = "Update payment", description = "Correct a payment record. ACCOUNTANT or ADMIN only.")
     public ResponseEntity<ApiResponse<PaymentResponse>> updatePayment(
             @PathVariable UUID id,
             @Valid @RequestBody PaymentRequest request,
@@ -263,6 +288,7 @@ public class FinanceController {
 
     @DeleteMapping("/payments/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Delete payment", description = "Soft delete a payment record. ADMIN only.")
     public ResponseEntity<ApiResponse<Void>> deletePayment(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {
@@ -277,6 +303,7 @@ public class FinanceController {
 
     @GetMapping("/salaries")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "List salary records", description = "Returns all payroll snapshots for drivers. ADMIN only — confidential payroll data.")
     public ResponseEntity<ApiResponse<List<SalaryRecordResponse>>> getAllSalaryRecords(
             @AuthenticationPrincipal User currentUser,
             @RequestParam(required = false) UUID companyId) {
@@ -287,6 +314,7 @@ public class FinanceController {
 
     @GetMapping("/salaries/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Get salary record by ID", description = "Fetch a single monthly payroll snapshot.")
     public ResponseEntity<ApiResponse<SalaryRecordResponse>> getSalaryRecordById(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {
@@ -297,6 +325,7 @@ public class FinanceController {
 
     @PostMapping("/salaries")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Create salary record", description = "Generate a monthly salary snapshot for a driver including deductions and net pay.")
     public ResponseEntity<ApiResponse<SalaryRecordResponse>> createSalaryRecord(
             @Valid @RequestBody SalaryRecordRequest request,
             @AuthenticationPrincipal User currentUser) {
@@ -308,6 +337,7 @@ public class FinanceController {
 
     @PutMapping("/salaries/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Update salary record", description = "Update a salary record, e.g. to correct deductions or bonus amounts.")
     public ResponseEntity<ApiResponse<SalaryRecordResponse>> updateSalaryRecord(
             @PathVariable UUID id,
             @Valid @RequestBody SalaryRecordRequest request,
@@ -319,6 +349,7 @@ public class FinanceController {
 
     @DeleteMapping("/salaries/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Delete salary record", description = "Soft delete a salary record. ADMIN only.")
     public ResponseEntity<ApiResponse<Void>> deleteSalaryRecord(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {

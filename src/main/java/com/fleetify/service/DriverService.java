@@ -1,6 +1,7 @@
 package com.fleetify.service;
 
 import com.fleetify.dto.request.DriverRequest;
+import com.fleetify.dto.response.DriverAvailabilityResponse;
 import com.fleetify.dto.response.DriverResponse;
 import com.fleetify.entity.Company;
 import com.fleetify.entity.Driver;
@@ -70,6 +71,22 @@ public class DriverService {
                     .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", id));
         }
         return DriverResponse.from(driver);
+    }
+
+    // ─── Get Driver Availability ───────────────────────────────────
+
+    @Transactional(readOnly = true)
+    public DriverAvailabilityResponse getDriverAvailability(UUID id, UUID companyId) {
+        Driver driver;
+        if (companyId == null) {
+            driver = driverRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", id));
+        } else {
+            driver = driverRepository.findByIdAndCompanyIdAndIsActiveTrue(id, companyId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", id));
+        }
+        boolean available = driver.getStatus() == DriverStatus.AVAILABLE;
+        return new DriverAvailabilityResponse(driver.getId(), driver.getFullName(), driver.getStatus(), available);
     }
 
     // ─── Create Driver (also creates their linked User account) ────
