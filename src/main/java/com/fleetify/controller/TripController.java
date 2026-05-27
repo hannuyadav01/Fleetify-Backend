@@ -8,6 +8,9 @@ import com.fleetify.enums.Role;
 import com.fleetify.enums.TripStatus;
 import com.fleetify.exception.ValidationException;
 import com.fleetify.service.TripService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/trips")
+@Tag(name = "Trips", description = "Freight trip management — routes, scheduling, tracking codes, and financial computation.")
+@SecurityRequirement(name = "bearerAuth")
 public class TripController {
 
     private final TripService tripService;
@@ -28,9 +33,9 @@ public class TripController {
         this.tripService = tripService;
     }
 
-    // GET /api/v1/trips
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'FLEET_MANAGER', 'ACCOUNTANT', 'SUPER_ADMIN')")
+    @Operation(summary = "List all trips", description = "Returns all trips for the company. Filter by status (PLANNED, IN_PROGRESS, COMPLETED, CANCELLED).")
     public ResponseEntity<ApiResponse<List<TripResponse>>> getAllTrips(
             @AuthenticationPrincipal User currentUser,
             @RequestParam(required = false) UUID companyId,
@@ -45,9 +50,9 @@ public class TripController {
         return ResponseEntity.ok(ApiResponse.success("Trips fetched successfully", trips));
     }
 
-    // GET /api/v1/trips/{id}
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'FLEET_MANAGER', 'ACCOUNTANT', 'SUPER_ADMIN', 'DRIVER')")
+    @Operation(summary = "Get trip by ID", description = "Fetch full trip details. Drivers can only access their own assigned trips.")
     public ResponseEntity<ApiResponse<TripResponse>> getTripById(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {
@@ -58,9 +63,7 @@ public class TripController {
 
         TripResponse trip = tripService.getTripById(id, companyId);
 
-        // Security check: Drivers can only view their own assigned trips
         if (currentUser.getRole() == Role.DRIVER) {
-            // Find driver profile linked to current user
             if (trip.getDriverId() == null || !trip.getDriverName().equals(currentUser.getFullName())) {
                 throw new org.springframework.security.access.AccessDeniedException("Access Denied: Drivers can only view their own trips");
             }
@@ -69,9 +72,9 @@ public class TripController {
         return ResponseEntity.ok(ApiResponse.success("Trip fetched successfully", trip));
     }
 
-    // POST /api/v1/trips
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'FLEET_MANAGER', 'SUPER_ADMIN')")
+    @Operation(summary = "Create trip", description = "Plan a new freight trip. Auto-generates a tracking code and computes balance due from freight and advance amounts. Requires FLEET_MANAGER or ADMIN.")
     public ResponseEntity<ApiResponse<TripResponse>> createTrip(
             @Valid @RequestBody TripRequest request,
             @AuthenticationPrincipal User currentUser) {
@@ -82,9 +85,9 @@ public class TripController {
                 .body(ApiResponse.success("Trip created successfully", trip));
     }
 
-    // PUT /api/v1/trips/{id}
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'FLEET_MANAGER', 'SUPER_ADMIN')")
+    @Operation(summary = "Update trip", description = "Update trip details including status transitions (e.g. PLANNED → IN_PROGRESS). Requires FLEET_MANAGER or ADMIN.")
     public ResponseEntity<ApiResponse<TripResponse>> updateTrip(
             @PathVariable UUID id,
             @Valid @RequestBody TripRequest request,
@@ -95,9 +98,9 @@ public class TripController {
         return ResponseEntity.ok(ApiResponse.success("Trip updated successfully", trip));
     }
 
-    // DELETE /api/v1/trips/{id}
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @Operation(summary = "Soft delete trip", description = "Deactivates a trip record (is_active = false). Only ADMIN or SUPER_ADMIN can delete.")
     public ResponseEntity<ApiResponse<Void>> deleteTrip(
             @PathVariable UUID id,
             @AuthenticationPrincipal User currentUser) {
@@ -110,7 +113,6 @@ public class TripController {
         return ResponseEntity.ok(ApiResponse.success("Trip deleted successfully"));
     }
 
-    // Helper: resolve and lock down the company scope
     private UUID resolveCompanyId(User currentUser, UUID requestedCompanyId) {
         if (currentUser.getRole() == Role.SUPER_ADMIN) {
             if (requestedCompanyId == null) {
