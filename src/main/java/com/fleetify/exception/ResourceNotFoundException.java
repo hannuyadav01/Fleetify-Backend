@@ -11,6 +11,11 @@ public class ResourceNotFoundException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
+    public ResourceNotFoundException(String message) {
+        super(message);
+        this.errorCode = "RESOURCE_NOT_FOUND";
+    }
+
     // Convenience constructor — auto-builds message like "Vehicle not found with id: <id>"
     public ResourceNotFoundException(String resourceName, String fieldName, Object fieldValue) {
         super(resourceName + " not found with " + fieldName + ": " + fieldValue);

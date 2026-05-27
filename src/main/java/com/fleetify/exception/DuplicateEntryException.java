@@ -12,6 +12,11 @@ public class DuplicateEntryException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
+    public DuplicateEntryException(String message) {
+        super(message);
+        this.errorCode = "DUPLICATE_ENTRY";
+    }
+
     // Convenience constructor — auto-builds message like "Vehicle with vehicle_number 'HR55AB1234' already exists"
     public DuplicateEntryException(String resourceName, String fieldName, Object fieldValue) {
         super(resourceName + " with " + fieldName + " '" + fieldValue + "' already exists");
