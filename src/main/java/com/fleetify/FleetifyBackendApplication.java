@@ -12,4 +12,3 @@ public class FleetifyBackendApplication {
 	}
 
 }
-//hello
